@@ -1,7 +1,7 @@
 from env.pacman_env import PacmanEnv
 
 # Create the environment
-env = PacmanEnv(ghost_mode="mixed")  # or "random", "chase"
+env = PacmanEnv() # Initialize Pac-Man environment
 state = env.reset()
 
 print("Welcome to Console Pac-Man!")
@@ -21,7 +21,7 @@ while not done:
     elif key == "s":
         action = 1  # down
     elif key == "a":
-        action = 2  # left
+        action = 2 # left
     elif key == "d":
         action = 3  # right
     else:
