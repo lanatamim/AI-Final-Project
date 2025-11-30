@@ -1,51 +1,144 @@
-# game_map.py
-
 class GameMap:
     """
-    Simple grid-based map for Pac-Man.
-    0 = empty space
-    1 = wall
-    2 = dot (reward)
+    Maze loader for Pac-Man.
+    # = wall
+    . = dot
+    P = power pellet
+    ' ' (space) = empty
     """
 
-    def __init__(self, width=10, height=10):
-        self.width = width
-        self.height = height
-        self.grid = self._create_default_map()
+    def __init__(self, width=None, height=None, maze_id=1):
+        self.mazes = {
+            1: self._maze_simple(),
+            2: self._maze_classic(),
+            3: self._maze_power(),
+            4: self._maze_hard()
+        }
 
-        # Pac-Man starting position (must not be a wall)
+        grid_str = self.mazes[maze_id]
+        self.grid = self._parse(grid_str)
+
+        self.height = len(self.grid)
+        self.width = len(self.grid[0])
+
+        # Start positions (place Pac-Man manually)
         self.start_pos = (1, 1)
 
         # Ghost starting positions
-        self.ghost_starts = [(width - 2, height - 2)]  # bottom-right corner
-
-        # PacmanEnv expects ghost_positions
+        self.ghost_starts = [(self.width - 2, self.height - 2)]
         self.ghost_positions = self.ghost_starts[:]
 
-    def _create_default_map(self):
-        grid = [[2 for _ in range(self.width)] for _ in range(self.height)]
-
-        # Add border walls
-        for x in range(self.width):
-            grid[0][x] = 1
-            grid[self.height - 1][x] = 1
-        for y in range(self.height):
-            grid[y][0] = 1
-            grid[y][self.width - 1] = 1
-
-        # Clear Pac-Man's start tile
-        grid[1][1] = 0
-
+    # ----------------------------
+    # Parse the ASCII maze
+    # ----------------------------
+    def _parse(self, maze_str):
+        grid = []
+        for line in maze_str.strip().split("\n"):
+            row = []
+            for ch in line:
+                if ch == "#":
+                    row.append(1)  # wall
+                elif ch == ".":
+                    row.append(2)  # dot
+                elif ch == "P":
+                    row.append(2)  # treat power pellet as dot for now
+                else:
+                    row.append(0)
+            grid.append(row)
         return grid
 
-    def is_wall(self, x, y):
-        return self.grid[y][x] == 1
+    # ----------------------------
+    # Mazes
+    # ----------------------------
+    def _maze_simple(self):
+        return """
+####################
+#......##......##..#
+#.####.#.####.#....#
+#.#....#......#.##.#
+#.#.##.######.#....#
+#.#.##........#.##.#
+#......#######......#
+####.#.......#.#####
+#....###...###....#.#
+#....#.......#....#.#
+#....###...###....#.#
+####.#.......#.#####
+#......#######......#
+#.#.##........#.##.#
+#.#.##.######.#....#
+#.#....#......#.##.#
+#.####.#.####.#....#
+#......##......##..#
+####################
+"""
 
-    def remove_dot(self, x, y):
-        if self.grid[y][x] == 2:
-            self.grid[y][x] = 0  # remove dot
-            return True
-        return False
+    def _maze_classic(self):
+        return """
+####################
+#........##........#
+#.####.#.##.#.####.#
+#.#  #.#....#. #.  #
+#.#  #.######.# #  #
+#......#....#......#
+#.####.#.##.#.####.#
+#........##........#
+#######.####.#######
+#.......####.......#
+#######.####.#######
+#........##........#
+#.####.#.##.#.####.#
+#......#....#......#
+#.#  #.######.# #  #
+#.#  #....##....#  #
+#.#.####.##.####.#.#
+#........##........#
+####################
+"""
 
-    def remaining_dots(self):
-        return sum(row.count(2) for row in self.grid)
+    def _maze_power(self):
+        return """
+####################
+#P......##......P..#
+#.####.#.##.#.####.#
+#.#....#....#....#.#
+#.#.##.######.##.#.#
+#......#....#......#
+#.####.#.##.#.####.#
+#P......####......P#
+####.#.......#.#####
+#....###P.P###....#.#
+#....#.......#....#.#
+#.P..###...###..P.#.#
+####.#.......#.#####
+#......#######......#
+#.#.##........#.##.#
+#.#.##.######.#....#
+#.#....#......#.##.#
+#.####.#.####.#....#
+#P......##......P..#
+####################
+"""
+
+    def _maze_hard(self):
+        return """
+####################
+#....#....##....#..#
+#.##.#.##.##.##.#.##
+#.#..#....##....#.#.#
+#.#.####.####.###.#.#
+#.....##......##....#
+###.#.####.####.#.###
+#...#....#....#...#.#
+#.###.########.###.##
+#.....# P..P #.....#.#
+#.###.########.###.##
+#...#....#....#...#.#
+###.#.####.####.#.###
+#.....##......##....#
+#.#.####.####.###.#.#
+#.#..#....##....#.#.#
+#.##.#.##.##.##.#.##
+#....#....##....#..#
+####################
+"""
