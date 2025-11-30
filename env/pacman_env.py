@@ -28,9 +28,7 @@ class PacmanEnv:
             3: (0, 1)     # right
         }
 
-    # ----------------------------------------------------------------------
     # Reset
-    # ----------------------------------------------------------------------
     def reset(self):
         self.pacman.x, self.pacman.y = self.map.start_pos
         
@@ -39,9 +37,7 @@ class PacmanEnv:
         
         return self.get_observation()
 
-    # ----------------------------------------------------------------------
     # Step function
-    # ----------------------------------------------------------------------
     def step(self, action):
         reward = 0
         done = False
@@ -71,16 +67,14 @@ class PacmanEnv:
                 reward -= 100
                 done = True
         
-        # ---------- Win condition ----------
+        # Win condition 
         if self.map.remaining_dots() == 0:
             reward += 200
             done = True
         
         return self.get_observation(), reward, done, {}
 
-    # ----------------------------------------------------------------------
     # Ghost movement: random, chase, or mixed
-    # ----------------------------------------------------------------------
     def move_ghost(self, ghost):
         mode = self.ghost_mode
         
@@ -93,9 +87,7 @@ class PacmanEnv:
         elif mode == "chase":
             self.ghost_chase_move(ghost)
 
-    # ----------------------------------------------------------------------
     # Simple random ghost movement
-    # ----------------------------------------------------------------------
     def ghost_random_move(self, ghost):
         directions = list(self.actions.values())
         random.shuffle(directions)
@@ -106,9 +98,7 @@ class PacmanEnv:
                 ghost.move(dx, dy)
                 break
 
-    # ----------------------------------------------------------------------
     # A* ghost chasing movement
-    # ----------------------------------------------------------------------
     def ghost_chase_move(self, ghost):
         start = (ghost.x, ghost.y)
         goal = (self.pacman.x, self.pacman.y)
@@ -123,9 +113,7 @@ class PacmanEnv:
             # fallback to random if no path
             self.ghost_random_move(ghost)
 
-    # ----------------------------------------------------------------------
     # Get valid actions for RL agent
-    # ----------------------------------------------------------------------
     def get_valid_actions(self):
         valid = []
         for a, (dx, dy) in self.actions.items():
@@ -141,9 +129,7 @@ class PacmanEnv:
     def get_ghost_positions(self):
         return [(g.x, g.y) for g in self.ghosts]
 
-    # ----------------------------------------------------------------------
     # Rendering
-    # ----------------------------------------------------------------------
     def render(self):
         print("----- PACMAN ENV -----")
         for y in range(self.map.height):
@@ -162,12 +148,12 @@ class PacmanEnv:
             print(row)
         print("\n")
 
-    # ----------------------------------------------------------------------
     # Observation for RL
-    # ----------------------------------------------------------------------
     def get_observation(self):
-        obs = np.copy(self.map.grid)
+        # Convert grid to a proper numpy array
+        obs = np.array(self.map.grid, dtype=int)
         obs[self.pacman.y, self.pacman.x] = 4  # mark Pac-Man
         for g in self.ghosts:
             obs[g.y][g.x] = 3  # mark ghosts
         return obs
+
