@@ -1,174 +1,91 @@
 class GameMap:
     """
-    Maze loader for Pac-Man.
+    Standard fully connected Pac-Man maze.
     # = wall
     . = dot
     P = power pellet
+    = = ghost gate
     space = empty
     """
 
-    def __init__(self, maze_id=1):
-        self.mazes = {
-            1: self._maze_simple(),
-            2: self._maze_classic(),
-            3: self._maze_power(),
-            4: self._maze_hard()
-        }
+    def __init__(self):
+        # Load ONLY the fixed, connected maze
+        raw = self._maze_arcade_clean()
 
-        # Load selected ASCII maze
-        raw = self.mazes[maze_id]
-
-        # Parse -> rectangular 2D list
+        # Parse into a grid
         self.grid = self._parse(raw)
 
-        # Height/width after parsing
         self.height = len(self.grid)
         self.width = len(self.grid[0])
 
-        # Pac-Man start
+        # Pac-Man always starts here
         self.start_pos = (1, 1)
 
-        # Ghost start(s)
-        self.ghost_starts = [(self.width - 2, self.height - 2)]
+        # Ghost starts at center of ghost room
+        self.ghost_starts = [(self.width // 2, self.height // 2)]
         self.ghost_positions = self.ghost_starts[:]
 
-    # Check if wall
+    # -------------------------------
+    # WALL CHECK
+    # -------------------------------
     def is_wall(self, x, y):
         if x < 0 or x >= self.width or y < 0 or y >= self.height:
             return True
         return self.grid[y][x] == 1
-    
+
     def remaining_dots(self):
-        """Count all dot tiles (value == 2) remaining in the maze."""
-        count = 0
-        for row in self.grid:
-            count += row.count(2)
-        return count
+        return sum(row.count(2) for row in self.grid)
 
-    # PARSE MAZE TEXT → CLEAN RECTANGULAR GRID
+    # -------------------------------
+    # PARSER
+    # -------------------------------
     def _parse(self, maze_str):
-        # Split lines, remove empty ones
-        lines = [
-            line.rstrip()
-            for line in maze_str.split("\n")
-            if line.strip()
-        ]
-
-        # Remove tabs, force spaces
-        lines = [line.replace("\t", " ") for line in lines]
-
-        # Compute maximum width
-        max_len = max(len(line) for line in lines)
+        raw_lines = [line.rstrip() for line in maze_str.split("\n") if line.strip()]
+        max_width = max(len(line) for line in raw_lines)
 
         grid = []
-        for line in lines:
-            # pad shorter lines with walls (#)
-            padded = line.ljust(max_len, "#")
+        for line in raw_lines:
+            padded = line.ljust(max_width, " ")  # pad with empty, NOT walls
 
             row = []
             for ch in padded:
                 if ch == "#":
-                    row.append(1)
+                    row.append(1)     # wall
                 elif ch == ".":
-                    row.append(2)
+                    row.append(2)     # dot
                 elif ch == "P":
-                    row.append(2)
+                    row.append(2)     # power pellet as dot
+                elif ch == "=":
+                    row.append(0)     # ghost gate
                 else:
-                    row.append(0)
+                    row.append(0)     # empty
             grid.append(row)
 
         return grid
 
-    # MAZES
-    def _maze_simple(self):
+    # -------------------------------
+    # FIXED, CONNECTED MAZE
+    # -------------------------------
+    def _maze_arcade_clean(self):
         return """
-####################
-#......##......##..#
-#.####.#.####.#....#
-#.#....#......#.##.#
-#.#.##.######.#....#
-#.#.##........#.##.#
-#......#######......#
-####.#.......#.#####
-#....###...###....#.#
-#....#.......#....#.#
-#....###...###....#.#
-####.#.......#.#####
-#......#######......#
-#.#.##........#.##.#
-#.#.##.######.#....#
-#.#....#......#.##.#
-#.####.#.####.#....#
-#......##......##..#
-####################
-"""
-
-    def _maze_classic(self):
-        return """
-####################
-#........##........#
-#.####.#.##.#.####.#
-#.#  #.#....#. #.  #
-#.#  #.######.# #  #
-#......#....#......#
-#.####.#.##.#.####.#
-#........##........#
-#######.####.#######
-#.......####.......#
-#######.####.#######
-#........##........#
-#.####.#.##.#.####.#
-#......#....#......#
-#.#  #.######.# #  #
-#.#  #....##....#  #
-#.#.####.##.####.#.#
-#........##........#
-####################
-"""
-
-    def _maze_power(self):
-        return """
-####################
-#P......##......P..#
-#.####.#.##.#.####.#
-#.#....#....#....#.#
-#.#.##.######.##.#.#
-#......#....#......#
-#.####.#.##.#.####.#
-#P......####......P#
-####.#.......#.#####
-#....###P.P###....#.#
-#....#.......#....#.#
-#.P..###...###..P.#.#
-####.#.......#.#####
-#......#######......#
-#.#.##........#.##.#
-#.#.##.######.#....#
-#.#....#......#.##.#
-#.####.#.####.#....#
-#P......##......P..#
-####################
-"""
-
-    def _maze_hard(self):
-        return """
-####################
-#....#....##....#..#
-#.##.#.##.##.##.#.##
-#.#..#....##....#.#.#
-#.#.####.####.###.#.#
-#.....##......##....#
-###.#.####.####.#.###
-#...#....#....#...#.#
-#.###.########.###.##
-#.....# P..P #.....#.#
-#.###.########.###.##
-#...#....#....#...#.#
-###.#.####.####.#.###
-#.....##......##....#
-#.#.####.####.###.#.#
-#.#..#....##....#.#.#
-#.##.#.##.##.##.#.##
-#....#....##....#..#
-####################
+############################
+#............##............#
+#.####.#####.##.#####.####.#
+#P####.#####.##.#####.####P#
+#.####.#####.##.#####.####.#
+#............==............#
+#.####.##.########.##.####.#
+#.####.##....##....##.####.#
+#......##### ## #####......#
+######.##### ## #####.######
+######.##          ##.######
+######.## ######## ##.######
+#............##............#
+#.####.#####.##.#####.####.#
+#P.......##   G   ##.......P#
+######.## ######## ##.######
+######.##          ##.######
+######.## ######## ##.######
+#............##............#
+############################
 """
