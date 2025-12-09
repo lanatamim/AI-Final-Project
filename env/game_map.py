@@ -10,20 +10,8 @@ class GameMap:
 
     def __init__(self):
         # Load ONLY the fixed, connected maze
-        raw = self._maze_arcade_clean()
-
-        # Parse into a grid
-        self.grid = self._parse(raw)
-
-        self.height = len(self.grid)
-        self.width = len(self.grid[0])
-
-        # Pac-Man always starts here
-        self.start_pos = (1, 1)
-
-        # Ghost starts at center of ghost room
-        self.ghost_starts = [(self.width // 2, self.height // 2)]
-        self.ghost_positions = self.ghost_starts[:]
+        self._raw_maze = self._maze_arcade_clean()
+        self._build_grid()
 
     # -------------------------------
     # WALL CHECK
@@ -35,6 +23,10 @@ class GameMap:
 
     def remaining_dots(self):
         return sum(row.count(2) for row in self.grid)
+
+    def reset(self):
+        """Rebuild the grid so dots respawn on reset."""
+        self._build_grid()
 
     # -------------------------------
     # PARSER
@@ -62,6 +54,20 @@ class GameMap:
             grid.append(row)
 
         return grid
+
+    def _build_grid(self):
+        # Parse into a grid
+        self.grid = self._parse(self._raw_maze)
+
+        self.height = len(self.grid)
+        self.width = len(self.grid[0])
+
+        # Pac-Man always starts here
+        self.start_pos = (1, 1)
+
+        # Ghost starts at center of ghost room
+        self.ghost_starts = [(self.width // 2, self.height // 2)]
+        self.ghost_positions = self.ghost_starts[:]
 
     # -------------------------------
     # FIXED, CONNECTED MAZE

@@ -114,6 +114,12 @@ How to Run the Project
 Human Play Mode
     Use W/A/S/D to control Pac-Man:
     python play.py
+Web Frontend (play in browser)
+    Install Flask (once):
+        pip install flask
+    Run the web server:
+        python web_app.py
+    Open http://localhost:5000 and use WASD/arrow keys to move Pac-Man.
 Train the RL Agent
     Runs Q-learning over many episodes:
     python train_search_agent.py
@@ -123,6 +129,11 @@ Run the Trained Agent Automatically
 Run Experiments / Generate Plots
 Compare multiple training schedules:
     python experiments.py
+
+Reinforcement Learning Agent Notes
+    The agent uses Q-learning with an epsilon-greedy policy and decaying epsilon (configurable in search_agent.py).
+    Ghost behavior can be configured via PacmanEnv(ghost_mode="mixed"|"chase"|"scatter") for different training curricula.
+    Training saves a Q-table (q_table_search_agent.npy) that run_agent.py loads for autonomous play.
 
 Conclusion
 This project demonstrates how combining Reinforcement Learning (Q-learning) with A* search produces a powerful hybrid agent capable of navigating a complex game environment. Each team role contributed to a system that:
