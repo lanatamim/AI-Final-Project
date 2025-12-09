@@ -5,8 +5,14 @@ from .entities import Pacman, Ghost
 from .pathfinding import a_star_path
 
 class PacmanEnv:
-    def __init__(self):
+    def __init__(self, ghost_mode="mixed"):
         self.map = GameMap()
+
+        # Ghost behavior mode control
+        # "mixed"  -> scatter/chase cycles (classic feel)
+        # "chase"  -> always chase Pac-Man
+        # "scatter"-> always scatter to corner
+        self.ghost_mode_setting = ghost_mode
         
         # Initialize Pac-Man
         px, py = self.map.start_pos
@@ -40,6 +46,9 @@ class PacmanEnv:
 
     # Reset
     def reset(self):
+        # Rebuild map grid so dots respawn
+        self.map.reset()
+
         # Reset Pac-Man
         self.pacman.x, self.pacman.y = self.map.start_pos
         
@@ -103,7 +112,15 @@ class PacmanEnv:
         - Then Chase (ghost chases Pac-Man)
         - Then back to Scatter, etc.
         """
+        # Allow overriding behavior from constructor
+        if self.ghost_mode_setting == "chase":
+            self.mode = "chase"
+            return
+        if self.ghost_mode_setting == "scatter":
+            self.mode = "scatter"
+            return
 
+        # Mixed cycles (default)
         self.mode_timer += 1
 
         if self.mode == "scatter":
