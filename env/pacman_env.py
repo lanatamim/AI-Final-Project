@@ -9,9 +9,10 @@ class PacmanEnv:
         self.map = GameMap()
 
         # Ghost behavior mode control
-        # "mixed"  -> scatter/chase cycles (classic feel)
-        # "chase"  -> always chase Pac-Man
-        # "scatter"-> always scatter to corner
+        # "mixed"   -> scatter/chase cycles (classic feel)
+        # "chase"   -> always chase Pac-Man
+        # "scatter" -> always scatter to corner
+        # "random"  -> purely random ghost movement
         self.ghost_mode_setting = ghost_mode
         
         # Initialize Pac-Man
@@ -119,6 +120,9 @@ class PacmanEnv:
         if self.ghost_mode_setting == "scatter":
             self.mode = "scatter"
             return
+        if self.ghost_mode_setting == "random":
+            self.mode = "random"
+            return
 
         # Mixed cycles (default)
         self.mode_timer += 1
@@ -137,6 +141,10 @@ class PacmanEnv:
     # Ghost movement: smarter, Pac-Man-like
     def ghost_smart_move(self, ghost):
         start = (ghost.x, ghost.y)
+
+        if self.mode == "random":
+            self.ghost_random_move(ghost)
+            return
 
         if self.mode == "scatter":
             # Run toward scatter corner
