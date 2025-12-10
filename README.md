@@ -160,34 +160,19 @@ Train RL Tic-Tac-Toe Agent and Play in Browser
     Ghost behavior can be configured via PacmanEnv(ghost_mode="mixed"|"chase"|"scatter") for different training curricula.
     Training saves a Q-table (q_table_search_agent.npy) that run_agent.py loads for autonomous play.
 
-Adversarial Game Agents & Experimentation
-    New Components:
-        adversarial_games.py: Complete Tic-Tac-Toe framework
-            - TicTacToe environment with full game logic
-            - MinimaxAgent: Optimal play with optional alpha-beta pruning
-            - RLTicTacToeAgent: Q-learning with self-play training
-            - play_match(): Tournament framework
-        
-        adversarial_experiments.py: Four comprehensive experiments
-            1. Epsilon-Greedy Decay Comparison (ε=0.99, 0.995, 0.999)
-               → Shows how decay rate affects learning speed and stability
-            2. Alpha-Beta Pruning Efficiency
-               → Demonstrates 96%+ reduction in nodes evaluated
-            3. RL vs Minimax (Learned Agent vs Optimal Baseline)
-               → RL learns to draw against perfect player
-            4. Learning Progression Over Training
-               → Tracks performance improvement across 500 episodes
-        
-        adversarial_web_api.py: REST API for browser-based play
-            - /api/tictactoe/reset: Start new game vs RL or Minimax
-            - /api/tictactoe/move: Player move + AI response
-            - /api/tictactoe/state: Get current board state
-    
-    Key Findings:
-        - Alpha-beta pruning reduces minimax search from ~278K to ~9K nodes (96% improvement)
-        - RL agent converges to optimal play (draw/loss only) vs Minimax within 500 episodes
-        - Slower ε decay (0.999) leads to more stable learning than aggressive decay (0.99)
-        - Self-play training successfully teaches Q-learning to play optimally
+"""
+Pac-Man RL + A* (Browser + Console)
+
+Keep these entry points:
+    - play.py                 (manual console play)
+    - web_app.py              (browser UI + autoplay RL agent)
+    - train_search_agent.py   (train Q-learning high-level policy)
+    - run_agent.py            (run trained agent in console)
+    - experiments.py          (Pac-Man epsilon-decay comparisons)
+    - env/                    (environment, ghosts, map, pathfinding)
+
+Removed unrelated adversarial Tic-Tac-Toe/minimax files to keep the project focused on Pac-Man.
+"""
 
 Conclusion
 This project demonstrates how combining Reinforcement Learning (Q-learning) with A* search produces a powerful hybrid agent capable of navigating a complex game environment. Each team role contributed to a system that:
